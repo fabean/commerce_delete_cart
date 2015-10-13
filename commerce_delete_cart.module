@@ -24,6 +24,8 @@ function commerce_delete_cart_menu() {
  * Where the magic happens
  */
 function commerce_delete_cart_main($uid) {
+  // db_delete orders in cart or in checkout process
+  // TODO: combine to single delete
   db_delete('commerce_order')
     ->condition('uid', $uid)
     ->condition('status', 'checkout_%', 'LIKE')
@@ -32,6 +34,8 @@ function commerce_delete_cart_main($uid) {
     ->condition('uid', $uid)
     ->condition('status', 'cart')
     ->execute();
+
+  $defaults = commerce_delete_cart_defaults();
   $redirect_url = variable_get('commerce-delete-cart-redirect', $defaults['commerce-delete-cart-redirect']);
   drupal_goto($redirect_url);
 }
@@ -40,7 +44,7 @@ function commerce_delete_cart_main($uid) {
  * Settings Form
  */
 function commerce_delete_cart_admin() {
-  $defaults = yratecalc_defaults();
+  $defaults = commerce_delete_cart_defaults();
   $form = array();
   $form['commerce-delete-cart-redirect'] = array(
     '#type' => 'textfield',
@@ -52,7 +56,9 @@ function commerce_delete_cart_admin() {
   return system_settings_form($form);
 }
 
-function yratecalc_defaults(){
+function commerce_delete_cart_defaults(){
   $defaults = array();
-  $defaults['commerce-delete-cart-redirect'] = 'node';
+  $defaults['commerce-delete-cart-redirect'] = 'node'; // by default we will redirect to front page
+  return $defaults;
 }
+
